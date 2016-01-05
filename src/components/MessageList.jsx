@@ -1,6 +1,8 @@
 import React from 'react';
 import Message from './Message.jsx';
 import mui from 'material-ui';
+import Firebase from 'firebase';
+import _ from 'lodash';
 
 var	{Card, List} = mui;
 
@@ -8,17 +10,31 @@ class MessageList extends React.Component {
 	constructor(props){
 		super(props);
 		this.state = {
-			messages: [
-			'Hello, there how are you?',
-			'I am super, and you?'
-			]
+			messages: {}
 		};
+
+		this.firebaseRef = new Firebase('https://reactmsg.firebaseio.com/messages');
+		this.firebaseRef.on("child_added", (msg)=> {
+			if(this.state.message[msg.key()]{
+				return;
+			}
+			let msgVal = msg.val();
+			msgVal.key = msg.key();
+			this.state.message[msgVal.key] = msgVal;
+			this.setState({messages: this.state.messages});
+		});
+
+			this.firebaseRef.on("child_removed", (msg)=> {
+				var key = msg.key();
+				delete this.state.messages[key];
+				this.setState({messages: this.state.messages});
+			});
 	}
 
 	render(){
-		var messageNodes = this.state.message.map((message)=> {
+		var messageNodes = _.value(this.state.message).map((message)=> {
 			return (
-				<Message message={message} />
+				<Message message={message.message} />
 			);
 		});
 
